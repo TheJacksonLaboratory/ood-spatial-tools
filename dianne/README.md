@@ -13,11 +13,6 @@ This Open OnDemand app launches a Jupyter Notebook server inside a container, wi
   1. Clone the repository to `$HOME/dianne-codebase` if it does not exist, or `git pull` to update it if it does.
   2. Start a Jupyter Notebook server inside the specified container, accessible via your browser.
 
-## Prerequisites
-- Apptainer/Singularity module available on compute nodes
-- Container image with Jupyter installed (path is set in the app configuration)
-- Outbound internet access for `git clone`/`git pull` (or pre-populate the repo)
-
 ## Usage
 1. Select your desired resources (partition, cores, memory, time) in the launch form.
 2. Click **Launch** to start your session.
