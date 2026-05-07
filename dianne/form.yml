@@ -61,7 +61,14 @@ attributes:
       - ["32GB"]
       - ["48GB"]
       - ["64GB"]
-      - ["96GB"]  
+      - ["96GB"]
+  custom_notebook_dir:
+    label: "Notebook directory"
+    widget: text_field
+    value: "$HOME/dianne-codebase/ondemand"
+    help: |
+      Path to the directory JupyterLab will open as its root.
+      Leave as-is to use the default cloned repository, or provide a custom path.
 
   # Any extra command line arguments to feed to the `jupyter notebook ...`
   # command that launches the Jupyter notebook within the batch job
@@ -83,4 +90,5 @@ form:
   - num_cores
   - memtask
   - bc_num_hours
+  - custom_notebook_dir
   - bc_email_on_started
