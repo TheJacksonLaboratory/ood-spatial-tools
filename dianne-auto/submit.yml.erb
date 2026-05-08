@@ -21,6 +21,9 @@ batch_connect:
   # need to use full hostname, so -f on our cluster
   set_host: "host=$(hostname -f)"
 
+  conn_params:
+    - custom_notebook_dir
+
 
 #
 # Configure the job script submission parameters for the batch job here

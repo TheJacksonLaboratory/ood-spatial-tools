@@ -55,7 +55,18 @@
   `;
   document.head.appendChild(style);
 
+  // Insert logo at the top of the form
+  function insertLogo() {
+    var logo = document.createElement("div");
+    logo.style.textAlign = "left";
+    logo.style.marginBottom = "18px";
+    logo.innerHTML = '<img src="https://raw.githubusercontent.com/TheJacksonLaboratory/ood-spatial-tools/main/dianne/logo.svg" width="300" alt="DIANNE Logo">';
+    var form = document.querySelector("form") || document.body;
+    form.insertBefore(logo, form.firstChild);
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
+    insertLogo();
     layoutPartitionQosMem();
     layoutCoresHours();
     enhanceEmail();
@@ -138,7 +149,10 @@
     const original = document.getElementById(ID.email);
     if (!original) return;
     const fg = hideFG(original);
-    const isOn = original.checked || original.value === "1";
+    // Always unchecked by default
+    original.checked = false;
+    original.value = "0";
+    const isOn = false;
 
     const wrap = document.createElement("div");
     wrap.style.marginBottom = "16px";
@@ -146,10 +160,10 @@
       <label class="df-label">Email notification</label>
       <div class="df-toggle-wrap">
         <label class="df-toggle">
-          <input type="checkbox" id="df-email-chk"${isOn ? " checked" : ""}>
+          <input type="checkbox" id="df-email-chk">
           <span class="df-toggle-track"></span>
         </label>
-        <span class="df-toggle-lbl${isOn ? " on" : ""}" id="df-email-lbl">${isOn ? "Notify me when the job starts" : "No notification"}</span>
+        <span class="df-toggle-lbl" id="df-email-lbl">No notification</span>
         <button type="button" id="df-launch-btn" class="df-launch-btn">&#9654; Launch</button>
       </div>`;
     fg.parentNode.insertBefore(wrap, fg);
@@ -158,6 +172,7 @@
     const lbl = document.getElementById("df-email-lbl");
     chk.addEventListener("change", function () {
       original.checked = this.checked;
+      original.value = this.checked ? "1" : "0";
       lbl.textContent  = this.checked ? "Notify me when the job starts" : "No notification";
       lbl.className    = "df-toggle-lbl" + (this.checked ? " on" : "");
       original.dispatchEvent(new Event("change", { bubbles: true }));
@@ -175,7 +190,7 @@
 
     /* TODO: update paths to real notebook directories when ready */
     const PRESETS = [
-      { label: "Histology", path: "$HOME/dianne-codebase/histology" },
+      { label: "Histology", path: "$HOME/dianne-codebase/ondemand/" },
       { label: "Xenium",    path: "$HOME/dianne-codebase/xenium"    },
       { label: "Visium",    path: "$HOME/dianne-codebase/visium"    },
     ];
@@ -186,10 +201,10 @@
 
     const row = document.createElement("div");
     row.className = "df-nb-presets";
-    PRESETS.forEach(function (p) {
+    PRESETS.forEach(function (p, i) {
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "df-nb-btn";
+      btn.className = "df-nb-btn" + (i === 0 ? " active" : "");
       btn.textContent = p.label;
       btn.addEventListener("click", function () {
         row.querySelectorAll(".df-nb-btn").forEach(b => b.classList.remove("active"));
@@ -198,6 +213,7 @@
       });
       row.appendChild(btn);
     });
+    sync(original, PRESETS[0].path);
 
     wrap.appendChild(row);
     fg.parentNode.insertBefore(wrap, fg);
