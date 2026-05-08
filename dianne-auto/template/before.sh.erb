@@ -51,9 +51,14 @@ fi
 export CONTAINER="/projects/chuang-lab/USERS/domans/containers/scanpy-seurat-v3.sif"
 export BIND_DIR="/projects/"
 
-# Use the directory chosen in the form, falling back to the repo clone
-export NOTEBOOK_DIR="<%= context.custom_notebook_dir %>"
+# Infer the directory chosen in the form, which is a full path to a notebook, and set the NOTEBOOK_DIR to the parent directory of that path
+NOTEBOOK_PATH="<%= context.custom_notebook_dir %>"
+custom_notebook_path="$NOTEBOOK_PATH"
+export custom_notebook_path
+custom_notebook_name="$(basename "$NOTEBOOK_PATH")"
+export custom_notebook_name
+echo "Custom notebook path: $custom_notebook_path" >> "$PWD/output.log"
+NOTEBOOK_DIR="$(dirname "$NOTEBOOK_PATH")"
+export NOTEBOOK_DIR
 custom_notebook_dir="$NOTEBOOK_DIR"
-export custom_notebook_dir
 echo "NOTEBOOK_DIR is set to: $NOTEBOOK_DIR" >> "$PWD/output.log"
-env >> "$PWD/output.log"

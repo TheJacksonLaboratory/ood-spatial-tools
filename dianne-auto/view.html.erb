@@ -6,7 +6,7 @@
 <% end %>
 
 <% if kernel_id %>
-  <% url = "http://#{connect.host}:#{connect.port}/notebooks/GUI-Histology-View.ipynb?token=#{connect.password}&kernel_id=#{kernel_id}" %>
+  <% url = "http://#{connect.host}:#{connect.port}/notebooks/#{custom_notebook_name}?token=#{connect.password}&kernel_id=#{kernel_id}" %>
   <a class="btn btn-primary" href="<%= url %>" target="_blank">
     Connect to DIANNE <img src="..." alt="" height="30" style="vertical-align: top; margin-left: 6px;">
   </a>

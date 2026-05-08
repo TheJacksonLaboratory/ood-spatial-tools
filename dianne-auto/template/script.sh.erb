@@ -15,6 +15,7 @@ module list
 echo "TIMING - Starting Jupyter at: $(date)"
 echo "Jupyter token: ${password}"
 echo "Connection URL: https://${host}:${PORT}/tree?token=${password}"
+echo "Received notebook name and path: ${custom_notebook_name} at ${NOTEBOOK_DIR}"
 
 # 1. Launch Jupyter in the BACKGROUND
 set -x
@@ -50,15 +51,15 @@ kernel_id = kernel["id"]
 # Link notebook to kernel via session
 session = requests.post(f"{base}/api/sessions", headers=headers, json={
     "kernel": {"id": kernel_id},
-    "name": "GUI-Histology-View.ipynb",
-    "path": "GUI-Histology-View.ipynb",
+    "name": "${custom_notebook_name}",
+    "path": "${custom_notebook_name}",
     "type": "notebook"
 }).json()
 
 print(kernel_id)
 
 # Get notebook content and find first two code cells
-nb = requests.get(f"{base}/api/contents/GUI-Histology-View.ipynb", headers=headers).json()
+nb = requests.get(f"{base}/api/contents/${custom_notebook_name}", headers=headers).json()
 code_cells = [c for c in nb["content"]["cells"] if c["cell_type"] == "code"]
 cells_to_run = code_cells[:2]
 
@@ -117,7 +118,7 @@ for cell in nb["content"]["cells"]:
             break
 
 requests.put(
-    f"{base}/api/contents/GUI-Histology-View.ipynb",
+    f"{base}/api/contents/${custom_notebook_name}",
     headers=headers,
     json=nb
 )

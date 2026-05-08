@@ -190,9 +190,9 @@
 
     /* TODO: update paths to real notebook directories when ready */
     const PRESETS = [
-      { label: "Histology", path: "$HOME/dianne-codebase/ondemand/" },
-      { label: "Xenium",    path: "$HOME/dianne-codebase/xenium"    },
-      { label: "Visium",    path: "$HOME/dianne-codebase/visium"    },
+      { label: "Histology", path: "$HOME/dianne-codebase/ondemand/GUI-Histology-View.ipynb"     },
+      { label: "Xenium",    path: "$HOME/dianne-codebase/ondemand/GUI-Fetal-Membranes.ipynb"    },
+      { label: "Visium",    path: "$HOME/dianne-codebase/ondemand/Demo-GUI-Visium.ipynb"        },
     ];
 
     const wrap = document.createElement("div");
