@@ -1,0 +1,15 @@
+<% kernel_id_file = "/home/domans/dianne_kernel_#{connect.password}" %>
+<% begin %>
+  <% kernel_id = File.read(kernel_id_file).strip %>
+<% rescue => e %>
+  <% kernel_id = nil %>
+<% end %>
+
+<% if kernel_id %>
+  <% url = "http://#{connect.host}:#{connect.port}/notebooks/GUI-Histology-View.ipynb?token=#{connect.password}&kernel_id=#{kernel_id}" %>
+  <a class="btn btn-primary" href="<%= url %>" target="_blank">
+    Connect to DIANNE <img src="..." alt="" height="30" style="vertical-align: top; margin-left: 6px;">
+  </a>
+<% else %>
+  <span class="btn btn-secondary disabled">Warming up kernel...</span>
+<% end %>

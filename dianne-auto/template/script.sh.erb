@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+echo "TIMING - Starting main script at: $(date)"
+
+JOB_DIR="${PWD}"
+cd "${HOME}"
+unset XDG_RUNTIME_DIR
+
+<%- unless context.modules.blank? -%>
+module purge
+module load <%= context.modules %>
+module list
+<%- end -%>
+
+echo "TIMING - Starting Jupyter at: $(date)"
+echo "Jupyter token: ${password}"
+echo "Connection URL: https://${host}:${PORT}/tree?token=${password}"
+
+# 1. Launch Jupyter in the BACKGROUND
+set -x
+apptainer exec -B "${BIND_DIR}" "${CONTAINER}" \
+  jupyter notebook \
+    --no-browser \
+    --port="${PORT}" \
+    --ip="${host}" \
+    --notebook-dir="${NOTEBOOK_DIR}" \
+    --NotebookApp.token="${password}" \
+    --NotebookApp.allow_origin="*" &
+
+JUPYTER_PID=$!
+
+# Wait for Jupyter to be ready
+echo "Waiting for Jupyter to be ready..."
+until curl -sk "http://${host}:${PORT}/api?token=${password}" | grep -q "version"; do
+  sleep 2
+done
+echo "Jupyter is ready!"
+
+cat > /tmp/create_kernel.py <<EOF
+import requests, sys
+
+base = "http://${host}:${PORT}"
+headers = {"Authorization": "token ${password}"}
+
+# Create kernel
+kernel = requests.post(f"{base}/api/kernels", headers=headers).json()
+kernel_id = kernel["id"]
+
+# Link notebook to kernel via session
+session = requests.post(f"{base}/api/sessions", headers=headers, json={
+    "kernel": {"id": kernel_id},
+    "name": "GUI-Histology-View.ipynb",
+    "path": "GUI-Histology-View.ipynb",
+    "type": "notebook"
+}).json()
+
+print(kernel_id)
+EOF
+
+KERNEL_ID=$(apptainer exec -B "${BIND_DIR}" "${CONTAINER}" python3 /tmp/create_kernel.py)
+echo "Kernel created: ${KERNEL_ID}"
+echo "${KERNEL_ID}" > "${HOME}/dianne_kernel_${password}"
+echo "Kernel ID written"
+
+# Write kernel_id for view.html.erb
+echo "${KERNEL_ID}" > "${HOME}/dianne_kernel_${password}"
+echo "Kernel ID written"
+
+# Keep job alive
+wait $JUPYTER_PID

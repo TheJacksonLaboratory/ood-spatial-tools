@@ -1,0 +1,7 @@
+---
+name: DIANNE-Auto
+category: Interactive Apps
+subcategory: Servers
+role: batch_connect
+description: |
+  This app will launch DIANNE on one node.
