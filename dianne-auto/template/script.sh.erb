@@ -37,7 +37,8 @@ done
 echo "Jupyter is ready!"
 
 cat > /tmp/create_kernel.py <<EOF
-import requests, sys
+import requests, sys, uuid, json
+import websocket
 
 base = "http://${host}:${PORT}"
 headers = {"Authorization": "token ${password}"}
@@ -55,6 +56,73 @@ session = requests.post(f"{base}/api/sessions", headers=headers, json={
 }).json()
 
 print(kernel_id)
+
+# Get notebook content and find first two code cells
+nb = requests.get(f"{base}/api/contents/GUI-Histology-View.ipynb", headers=headers).json()
+code_cells = [c for c in nb["content"]["cells"] if c["cell_type"] == "code"]
+cells_to_run = code_cells[:2]
+
+# Execute via WebSocket and collect outputs
+ws = websocket.create_connection(
+    f"ws://${host}:${PORT}/api/kernels/{kernel_id}/channels",
+    header=[f"Authorization: token ${password}"]
+)
+
+all_outputs = []
+for cell in cells_to_run:
+    msg_id = str(uuid.uuid4())
+    msg = {
+        "header": {"msg_id": msg_id, "msg_type": "execute_request", "version": "5.3"},
+        "parent_header": {},
+        "metadata": {},
+        "content": {"code": cell["source"], "silent": False, "store_history": True,
+                    "user_expressions": {}, "allow_stdin": False},
+        "buffers": [],
+        "channel": "shell"
+    }
+    ws.send(json.dumps(msg))
+
+    outputs = []
+    while True:
+        response = json.loads(ws.recv())
+        if response.get("parent_header", {}).get("msg_id") != msg_id:
+            continue
+        msg_type = response.get("msg_type")
+        content = response.get("content", {})
+        if msg_type == "stream":
+            outputs.append({"output_type": "stream", "name": content["name"], "text": content["text"]})
+        elif msg_type == "execute_result":
+            outputs.append({"output_type": "execute_result", "execution_count": content.get("execution_count"),
+                            "data": content.get("data", {}), "metadata": content.get("metadata", {})})
+        elif msg_type == "display_data":
+            outputs.append({"output_type": "display_data", "data": content.get("data", {}),
+                            "metadata": content.get("metadata", {})})
+        elif msg_type == "error":
+            outputs.append({"output_type": "error", "ename": content.get("ename"),
+                            "evalue": content.get("evalue"), "traceback": content.get("traceback", [])})
+        elif msg_type == "execute_reply":
+            print(f"Cell status: {content['status']}", file=sys.stderr)
+            break
+    all_outputs.append(outputs)
+
+ws.close()
+
+# Write outputs back into notebook cells and save
+idx = 0
+for cell in nb["content"]["cells"]:
+    if cell["cell_type"] == "code" and idx < len(all_outputs):
+        cell["outputs"] = all_outputs[idx]
+        idx += 1
+        if idx >= len(cells_to_run):
+            break
+
+requests.put(
+    f"{base}/api/contents/GUI-Histology-View.ipynb",
+    headers=headers,
+    json=nb
+)
+print("Notebook saved.", file=sys.stderr)
+
 EOF
 
 KERNEL_ID=$(apptainer exec -B "${BIND_DIR}" "${CONTAINER}" python3 /tmp/create_kernel.py)
