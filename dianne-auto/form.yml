@@ -66,9 +66,6 @@ attributes:
     label: "Notebook directory"
     widget: text_field
     value: "$HOME/dianne-codebase/ondemand"
-    help: |
-      Path to the directory JupyterLab will open as its root.
-      Leave as-is to use the default cloned repository, or provide a custom path.
 
   # Any extra command line arguments to feed to the `jupyter notebook ...`
   # command that launches the Jupyter notebook within the batch job
