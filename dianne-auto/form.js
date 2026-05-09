@@ -139,6 +139,7 @@
 
     const row = document.createElement("div");
     row.className = "df-row";
+    coresEl.value = 6; // default to 16 cores
     row.appendChild(wrapCol(buildSliderField(coresEl, "Number of cores", 2, 64, 1, v => v)));
     row.appendChild(wrapCol(buildSliderField(hoursEl, "Number of hours",  1,  8, 1, v => v + " h")));
     anchor.parentNode.insertBefore(row, anchor);
@@ -190,9 +191,12 @@
 
     /* TODO: update paths to real notebook directories when ready */
     const PRESETS = [
-      { label: "Histology", path: "$HOME/dianne-codebase/ondemand/GUI-Histology-View.ipynb"     },
-      { label: "Xenium",    path: "$HOME/dianne-codebase/ondemand/GUI-Fetal-Membranes.ipynb"    },
-      { label: "Visium",    path: "$HOME/dianne-codebase/ondemand/Demo-GUI-Visium.ipynb"        },
+      { label: "H&E View",         path: "$HOME/dianne-codebase/ondemand/GUI-Histology-View.ipynb"            },
+      { label: "H&E",              path: "$HOME/dianne-codebase/ondemand/Demo-GUI-single-histology.ipynb"     },
+      { label: "Xenium",           path: "$HOME/dianne-codebase/ondemand/GUI-Fetal-Membranes.ipynb"           },
+      { label: "Atera",            path: "$HOME/dianne-codebase/ondemand/Demo-GUI-Atera-BC.ipynb"             },
+      { label: "Visium",           path: "$HOME/dianne-codebase/ondemand/Demo-GUI-Visium.ipynb"               },
+      { label: "CellDIVE",         path: "$HOME/dianne-codebase/ondemand/GUI-GBM.ipynb"                       },
     ];
 
     const wrap = document.createElement("div");
@@ -261,7 +265,7 @@
     original.style.display = "none";
     const wrapper = document.createElement("div");
     wrapper.appendChild(makeLabel("Memory"));
-    const opts = ["32GB", "48GB", "64GB", "96GB"];
+    const opts = ["16GB", "32GB", "64GB", "96GB"];
     const seg = document.createElement("div");
     seg.className = "df-seg"; seg.id = "df-mem-seg";
     opts.forEach(function (val) {
@@ -278,7 +282,7 @@
     });
     if (!seg.querySelector(".active")) {
       seg.querySelector(".df-seg-btn").classList.add("active");
-      original.value = opts[0];
+      original.value = opts[1]; // default to 32GB
     }
     wrapper.appendChild(seg);
     return wrapper;
