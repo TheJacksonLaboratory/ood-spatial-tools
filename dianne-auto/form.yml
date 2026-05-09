@@ -63,9 +63,10 @@ attributes:
       - ["64GB"]
       - ["96GB"]
   custom_notebook_dir:
-    label: "Notebook directory"
+    label: "Notebook path"
     widget: text_field
     value: "$HOME/dianne-codebase/ondemand"
+    display: true
 
   # Any extra command line arguments to feed to the `jupyter notebook ...`
   # command that launches the Jupyter notebook within the batch job
